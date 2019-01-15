@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+
+<body>
+
+<svg id="svgOne" xmlns="http://www.w3.org/2000/svg" width="5000" height="3000"> 
+</svg>
+</body>
+<script>var svgns = "http://www.w3.org/2000/svg";
+
+var boxSize = 90;
+
+var selected = null;
+
+
+function createNode(x,y, gx, gy) {
+    return {x:x, y:y, gx:gx, gy:gy, text:""};
+}
+
+var nodes = []
+
+for (var gx = 0; gx < 3; gx++)  {
+    for (var gy = 0; gy < 3; gy++) {
+        for (var x = 0; x < 3; x++)  {
+            for (var y = 0; y < 3; y++) {
+                console.log("create node");
+                var node = createNode(x,y,gx,gy);
+                nodes.push(node);
+            }
+        }
+    }
+}
+
+function drawNode(node) {
+        var x = node.x * boxSize + node.gx * (boxSize * 3),
+        y = node.y * boxSize + node.gy * (boxSize * 3);
+        
+        var g = document.createElementNS(svgns, "g");
+
+        document.getElementById('svgOne').appendChild(g);
+
+        var rect = document.createElementNS(svgns, 'rect');
+        rect.setAttributeNS(null, 'x', x);
+        rect.setAttributeNS(null, 'y', y);
+        rect.setAttributeNS(null, 'height', boxSize);
+        rect.setAttributeNS(null, 'width', boxSize);
+        rect.setAttributeNS(null, 'fill', '#000000');
+        rect.setAttributeNS(null, "stroke", "#FF0000");
+        rect.setAttributeNS(null, "stroke-width", "1");
+        rect.node = node;
+        
+        if (selected == node) {
+            console.log("as");
+            rect.setAttributeNS(null, "stroke", "#00FFFF");
+        } 
+        
+        rect.addEventListener('click', function (event) {
+                console.log("click");
+                if (selected == event.target.node) {
+                    selected = null;
+                } else {
+                    selected = event.target.node;
+                }
+                redraw(nodes);
+        }, false);
+        
+        
+
+        var textX = x + (boxSize/2) - 10;
+        var textY = y + (boxSize/2) + 15;
+
+        var text = document.createElementNS(svgns, "text");
+        text.setAttribute('x',textX);
+        text.setAttribute('y',textY);
+        text.setAttribute('fill',"#FFFFFF");
+        text.setAttribute('font-size',"50");
+        text.textContent = node.text;
+        g.appendChild(rect);
+        g.appendChild(text);
+}
+
+function redraw(nodes) {
+    for (var i=0; i < nodes.length;i++) {
+        var node = nodes[i];
+        drawNode(node);
+    }
+
+    var lineColor = "#72ff00";
+
+    for (var gx = 0; gx < 2; gx++)  {
+            var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+            newLine.setAttribute('x1', (gx + 1) * (boxSize * 3));
+            newLine.setAttribute('y1', 0);
+            newLine.setAttribute('x2', (gx + 1) * (boxSize * 3));
+            newLine.setAttribute('y2', boxSize * 9);
+            newLine.setAttribute("stroke", lineColor);
+            document.getElementById('svgOne').appendChild(newLine);
+    }
+
+
+    for (var gx = 0; gx < 2; gx++)  {
+            var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+            newLine.setAttribute('x1', 0);
+            newLine.setAttribute('y1', (gx + 1) * (boxSize * 3));
+            newLine.setAttribute('x2', boxSize * 9);
+            newLine.setAttribute('y2', (gx + 1) * (boxSize * 3));
+            newLine.setAttribute("stroke", lineColor);
+            document.getElementById('svgOne').appendChild(newLine);
+    }
+
+
+    if (selected != null) {
+        drawNode(selected);
+    }
+}
+
+window.document.addEventListener('keydown', function (event) {
+    console.log("keydown  " + event.code);
+    if (selected && event.code.startsWith("Digit")) {
+        if (event.code == "Digit0") {
+            selected.text = "";
+        }
+        else {
+            selected.text = event.code.substring(5);
+        }
+    }
+    redraw(nodes);
+}, false);
+
+redraw(nodes);
+        </script>
+</html>
